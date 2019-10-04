@@ -1,6 +1,6 @@
 # hive
 
-The main purpose of the script is for AUID USER ID WITH ROOT PRIVILAGE on LINUX Based System 
+The main purpose of the script is for AUDIT USER ID WITH ROOT PRIVILAGE on LINUX Based System 
 
 This play book will execute the bash script on the remote server from the local server 
 
