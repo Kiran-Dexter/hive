@@ -1,0 +1,16 @@
+---
+- name: Gather UID and GID with 0
+  hosts: "*"
+
+  tasks:
+
+    - script: /tmp/userget.sh
+
+    - name: Get the output files from the remote servers
+      fetch:
+        src: "{{ item }}"
+        dest: /tmp/IDRESULT/{{ inventory_hostname }}/
+        flat: true
+      with_items:
+        ['/home/username{{ inventory_hostname }}.csv']
+ ---
