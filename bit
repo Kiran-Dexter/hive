@@ -1,0 +1,8 @@
+bitsadmin /create MyJob1
+bitsadmin /addfile MyJob1 $link $dest
+bitsadmin /SetSecurityFlags MyJob1 30
+bitsadmin /SetPriority MyJob1 FOREGROUND
+bitsadmin /resume MyJob1
+bitsadmin /info MyJob1 /verbose
+sleep 15
+bitsadmin /complete MyJob1 
