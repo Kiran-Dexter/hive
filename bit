@@ -1,8 +1,9 @@
-bitsadmin /create MyJob1
-bitsadmin /addfile MyJob1 $link $dest
-bitsadmin /SetSecurityFlags MyJob1 30
-bitsadmin /SetPriority MyJob1 FOREGROUND
-bitsadmin /resume MyJob1
-bitsadmin /info MyJob1 /verbose
-sleep 15
-bitsadmin /complete MyJob1 
+bitsadmin /create MyJob2
+
+bitsadmin /setcredentials MyJob2 SERVER BASIC admin p@ssword123
+
+bitsadmin /SetSecurityFlags MyJob2 30
+
+bitsadmin /transfer MyJob2 /download /priority FOREGROUND $link $dest
+
+bitsadmin /complete MyJob2 
