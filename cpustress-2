@@ -1,0 +1,16 @@
+# Import the necessary module for using the Stopwatch class
+Add-Type -AssemblyName System.Diagnostics
+
+# Initialize the Stopwatch class
+$stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+
+# Start the CPU stress test
+while ($stopwatch.Elapsed.TotalSeconds -lt 30) {
+    0..1000000 | ForEach-Object { [Math]::Sin($_) }
+}
+
+# Stop the Stopwatch class
+$stopwatch.Stop()
+
+# Print the results
+Write-Output "The CPU stress test took $($stopwatch.Elapsed.TotalSeconds) seconds to complete."
