@@ -1,0 +1,14 @@
+$numOfCores = [Environment]::ProcessorCount
+$jobs = @()
+for ($i=0; $i -lt $numOfCores; $i++) {
+    $jobs += Start-Job {
+        for ($j=0; $j -lt 600000000; $j++) { }
+    }
+}
+Write-Output "Stressing CPU..."
+Start-Sleep -Seconds 60
+
+foreach ($job in $jobs) {
+    Stop-Job $job
+}
+Write-Output "Stress test complete."
