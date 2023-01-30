@@ -1,0 +1,9 @@
+$numOfCores = [Environment]::ProcessorCount
+$jobs = @()
+for ($i=0; $i -lt $numOfCores; $i++) {
+    $jobs += Start-Job {
+        for (;;) { }
+    }
+}
+Write-Output "Stressing CPU..."
+
