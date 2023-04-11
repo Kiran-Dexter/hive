@@ -1,0 +1,4 @@
+spark.ui.xXssProtection 1; mode=block
+spark.ui.xContentTypeOptions.enabled true
+spark.ui.strictTransportSecurity max-age=31536000; includeSubDomains
+spark.network.http.disableOptionsMethod true
