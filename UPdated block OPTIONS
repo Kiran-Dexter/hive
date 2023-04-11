@@ -1,0 +1,2 @@
+spark.ui.filters=org.apache.spark.ui.filters.HttpSecurityHeadersFilter
+spark.ui.filter.HttpSecurityHeadersFilter.params=blockMethods=OPTIONS
