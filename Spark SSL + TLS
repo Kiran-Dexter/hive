@@ -1,0 +1,6 @@
+spark.ssl.enabled=true
+spark.ssl.keyStore=<path-to-keystore-file>
+spark.ssl.keyStorePassword=<password-for-keystore>
+spark.ssl.keyPassword=<password-for-private-key>
+spark.ssl.protocol=TLSv1.2
+spark.ssl.enabledAlgorithms=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384,TLS_RSA_WITH_AES_128_GCM_SHA256,TLS_RSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_128_CBC_SHA256,TLS_RSA_WITH_AES_256_CBC_SHA256
