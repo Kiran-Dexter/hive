@@ -1,0 +1,42 @@
+searchguard.authcz.admin_dn:
+  - "cn=admin,dc=example,dc=com"
+searchguard.authcz.restapi.roles_enabled: ["sg_all_access"]
+searchguard.authentication.authentication_backend:
+  - name: "ldap"
+    config:
+      enable_ssl: false
+      enable_start_tls: false
+      enable_ssl_client_auth: false
+      verify_hostnames: true
+      hosts:
+        - "ldaps://ldap.example.com:636"
+      bind_dn: "cn=admin,dc=example,dc=com"
+      password: "admin_password"
+      userbase: "ou=People,dc=example,dc=com"
+      usersearch: "(sAMAccountName={0})"
+      username_attribute: "sAMAccountName"
+      userroleattribute: "memberOf"
+      userrolename: "name"
+      rolebase: "ou=Roles,dc=example,dc=com"
+      rolesearch: "(member={0})"
+###############################################
+
+KIBNA
+
+elasticsearch.username: "kibana"
+elasticsearch.password: "kibana_password"
+elasticsearch.hosts: ["http://localhost:9200"]
+searchguard.basicauth.enabled: false
+searchguard.cookie.secure: false
+searchguard.auth.type: "ldap"
+searchguard.ldap.base_dn: "dc=example,dc=com"
+searchguard.ldap.url: "ldaps://ldap.example.com:636"
+searchguard.ldap.ssl: false
+searchguard.ldap.bind_dn: "cn=admin,dc=example,dc=com"
+searchguard.ldap.bind_password: "admin_password"
+searchguard.ldap.usersearch: "(sAMAccountName={0})"
+searchguard.ldap.username_attribute: "sAMAccountName"
+searchguard.ldap.rolebase: "ou=Roles,dc=example,dc=com"
+searchguard.ldap.rolesearch: "(member={0})"
+searchguard.ldap.userroleattribute: "memberOf"
+searchguard.ldap.resolve_nested_roles: true
