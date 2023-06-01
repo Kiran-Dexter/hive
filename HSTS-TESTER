@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# Function to check if HSTS is enabled for a given URL
+check_hsts() {
+    url="$1"
+
+    echo "Checking HSTS for URL: $url"
+    echo "-------------------------------------"
+
+    # Send a request to the URL and check the response headers
+    headers=$(curl -sI "$url")
+
+    # Check if the Strict-Transport-Security header is present
+    if grep -q "^Strict-Transport-Security:" <<< "$headers"; then
+        echo "HSTS is enabled for $url"
+    else
+        echo "HSTS is not enabled for $url"
+    fi
+
+    echo "-------------------------------------"
+}
+
+# Main script
+
+# Prompt the user to enter a URL
+read -p "Enter the URL to check HSTS: " input_url
+
+# Validate and sanitize the URL
+url=$(echo "$input_url" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+
+# Check if the URL is empty
+if [[ -z "$url" ]]; then
+    echo "Invalid URL. Exiting."
+    exit 1
+fi
+
+# Call the function to check HSTS for the URL
+check_hsts "$url"
