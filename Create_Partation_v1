@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# Detect available storage devices
+devices=$(lsblk -o NAME,SIZE -n -d | awk '$2 >= 200' | awk '{print $1}')
+
+# Iterate through each device and create partition
+for dev in $devices
+do
+  echo "Creating partition on $dev"
+  echo -e "n\np\n1\n\n\nw" | fdisk "/dev/$dev"
+  
+  # Format the partition as ext4
+  mkfs.ext4 "/dev/${dev}1"
+
+  # Create a mount point
+  mount_point="/dummy${dev}"
+  mkdir "$mount_point"
+
+  # Mount the partition
+  mount "/dev/${dev}1" "$mount_point"
+
+  # Add entry to /etc/fstab for automatic mounting on boot
+  echo "/dev/${dev}1    $mount_point    ext4    defaults    0    0" >> /etc/fstab
+
+  # Verify the mount
+  mount -a
+done
+
+# Display the mounted partitions
+df -h
