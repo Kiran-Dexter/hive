@@ -1,0 +1,50 @@
+# Check if the script is being run as administrator
+$isAdmin = ([System.Security.Principal.WindowsPrincipal] [System.Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator)
+
+if (-not $isAdmin) {
+    Write-Host "This script requires administrative privileges. Run as administrator."
+    exit
+}
+
+$mqServiceName = "IBM MQ"
+$mqServicePort = 1414
+$logFilePath = "D:\tmp\chaostest\mqlog\log.txt"
+
+# Check for IBM MQ service on different drive letters
+$driveLetters = "C", "D", "E"
+$mqServiceFound = $false
+
+foreach ($drive in $driveLetters) {
+    $mqService = Get-WmiObject Win32_Service | Where-Object { $_.Name -eq $mqServiceName }
+    
+    if ($mqService) {
+        $mqServiceFound = $true
+        break
+    }
+}
+
+if (-not $mqServiceFound) {
+    Add-Content -Path $logFilePath -Value "IBM MQ service not found on any drive."
+    exit
+}
+
+# Kill the process and stop the service
+$mqServicePID = $mqService.ProcessId
+
+if ($mqServicePID) {
+    Stop-Process -Id $mqServicePID -Force -ErrorAction SilentlyContinue
+    if ($?) {
+        Add-Content -Path $logFilePath -Value "IBM MQ service with PID $mqServicePID has been killed."
+    } else {
+        Add-Content -Path $logFilePath -Value "Failed to kill IBM MQ service with PID $mqServicePID."
+    }
+
+    Stop-Service -Name $mqServiceName -Force -ErrorAction SilentlyContinue
+    if ($?) {
+        Add-Content -Path $logFilePath -Value "IBM MQ service has been stopped."
+    } else {
+        Add-Content -Path $logFilePath -Value "Failed to stop IBM MQ service."
+    }
+}
+
+Add-Content -Path $logFilePath -Value "Script execution completed."
