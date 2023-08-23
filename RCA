@@ -1,0 +1,34 @@
+Incident Summary:
+A Linux server experienced data loss and mount point issues after a system reboot. Upon investigation, it was found that incorrect logical volumes (LVs) were mounted to mount points, and some mount points had duplicate names. The issue was resolved by modifying the /etc/fstab configuration.
+
+Incident Timeline:
+
+    System Reboot: The Linux server underwent a reboot due to either planned maintenance or unexpected circumstances.
+
+    Disk Missing Data: After the system resumed, it was discovered that certain data was missing. This data loss triggered an investigation into the cause of the problem.
+
+    Root Cause Identification:
+        Incorrect LV Mounting: During the investigation, it was revealed that incorrect logical volumes were mounted to specific mount points. This could have occurred due to misconfigurations in the /etc/fstab file or other configuration files.
+        Duplicate Mount Point Names: Additionally, it was observed that some mount points had duplicate names. This duplication could lead to confusion during the mounting process.
+
+    Resolution Steps:
+        Configuration Update: The issue was resolved by updating the /etc/fstab configuration file. The incorrect logical volume associations were corrected, ensuring that the appropriate LVs were mounted to the intended mount points.
+        Mount Point Renaming: To address the duplicate mount point name issue, the affected mount points were renamed to have distinct and non-conflicting names.
+
+    Verification and Testing:
+        System Validation: After the configuration changes were made, the server was restarted, and thorough testing was conducted to ensure that the data loss issue was resolved, and the correct logical volumes were successfully mounted to their respective mount points.
+        Duplicate Names Resolution: The renaming of duplicate mount points was verified to ensure that each mount point had a unique and unambiguous name.
+
+Contributing Factors:
+
+    Configuration Errors: The incident was primarily caused by incorrect configurations in the /etc/fstab file, which led to improper mounting of logical volumes.
+    Naming Ambiguity: The use of duplicate mount point names contributed to the confusion during the mounting process, making it difficult to discern which LV should be mounted where.
+
+Preventive Measures:
+
+    Configuration Review: Regularly review and validate configuration files, including /etc/fstab, to ensure accurate mapping of logical volumes to mount points.
+    Naming Convention: Enforce a clear and consistent naming convention for mount points to avoid ambiguity and prevent future conflicts.
+    Testing and Validation: Prior to making configuration changes, thoroughly test and validate the changes in a controlled environment to identify potential issues before they impact production systems.
+
+Conclusion:
+The data loss and mount point issues were traced back to incorrect logical volume associations and duplicate mount point names in the /etc/fstab configuration file. By updating the configurations and addressing the naming ambiguity, the issue was successfully resolved, and steps were taken to prevent similar incidents in the future.
