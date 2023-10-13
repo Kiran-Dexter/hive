@@ -1,0 +1,25 @@
+#############################################
+# SQL KILLER V1								#
+# 											#
+# 											#
+#############################################
+function LogWrite {
+    Param ([string]$logstring)
+
+    $timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
+    Add-Content -Path "D:\logs\sql_log_$timestamp.txt" -Value $logstring
+}
+
+try {
+ 
+    $sqlPID = (Get-Process -Name sqlservr -ErrorAction Stop).Id
+
+    $sqlPort = Get-NetTCPConnection -OwningProcess $sqlPID | Where-Object State -EQ Listen | Select-Object -ExpandProperty LocalPort -ErrorAction Stop
+
+     Stop-Process -Id $sqlPID -Force -ErrorAction Stop
+
+    LogWrite "Successfully stopped MS SQL running on port $sqlPort."
+
+} catch {
+    LogWrite "Error encountered: $_"
+}
