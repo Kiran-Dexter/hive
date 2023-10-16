@@ -1,0 +1,58 @@
+#########################################
+# DNS ATTACKER V01                       #
+#                                        #
+#                                        #
+##########################################
+
+
+
+
+
+
+$interfaceName = Get-NetRoute | Where-Object { $_.DestinationPrefix -eq "0.0.0.0/0" } | Get-NetAdapter | Select-Object -ExpandProperty Name
+
+$logDir = "D:\logs"
+try {
+    if (-not (Test-Path $logDir)) {
+        New-Item -ItemType Directory -Path $logDir
+    }
+} catch {
+    Write-Error "Failed to create or access the logs directory: $_"
+    return
+}
+
+$logFile = Join-Path $logDir ("DNS_Change_" + (Get-Date -Format "yyyyMMdd_HHmmss") + ".log")
+
+$currentDns = Get-DnsClientServerAddress -InterfaceAlias $interfaceName | Where-Object { $_.AddressFamily -eq 'IPv4' }
+$backupDns = $currentDns.ServerAddresses
+
+$backupFile = Join-Path $logDir ("DNS_Backup_" + (Get-Date -Format "yyyyMMdd_HHmmss") + ".txt")
+$backupDns | Out-File $backupFile
+
+Add-Content -Path $logFile -Value ("Changing DNS for interface: " + $interfaceName + " to 8.8.8.8")
+
+try {
+    Set-DnsClientServerAddress -InterfaceAlias $interfaceName -ServerAddresses 8.8.8.8
+    Add-Content -Path $logFile -Value ("Successfully changed DNS for " + $interfaceName)
+    
+    # Flush DNS cache
+    Invoke-Expression "ipconfig /flushdns"
+    Add-Content -Path $logFile -Value ("Flushed DNS cache after changing DNS")
+} catch {
+    Add-Content -Path $logFile -Value ("Error: $_")
+}
+
+Start-Sleep -Seconds 120  # Wait for 120 seconds
+
+try {
+    Set-DnsClientServerAddress -InterfaceAlias $interfaceName -ServerAddresses $backupDns
+    Add-Content -Path $logFile -Value ("Successfully reverted DNS settings for " + $interfaceName)
+    
+    # Flush DNS cache
+    Invoke-Expression "ipconfig /flushdns"
+    Add-Content -Path $logFile -Value ("Flushed DNS cache after reverting DNS settings")
+} catch {
+    Add-Content -Path $logFile -Value ("Error: $_")
+}
+
+Write-Host "DNS change and revert completed. Log saved to: $logFile"
