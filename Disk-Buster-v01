@@ -1,0 +1,65 @@
+param(
+    [int]$blockSizeKB = 4,
+    [int]$totalSizeMB = 1000
+)
+
+function Write-Log {
+    param (
+        [string]$Message
+    )
+    
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $logMessage = "$timestamp - $Message"
+    Add-Content -Path $logFile -Value $logMessage
+}
+
+$logDir = "D:\logs"
+if (-not (Test-Path $logDir)) {
+    New-Item -ItemType Directory -Path $logDir | Out-Null
+}
+$logFile = Join-Path $logDir ("IO_Test_" + (Get-Date -Format "yyyyMMdd_HHmmss") + ".log")
+
+$drives = Get-PSDrive -PSProvider 'FileSystem'
+
+$index = 1
+$driveSelection = @()
+$drives | ForEach-Object {
+    Write-Host "$index. $($_.Root)"
+    $driveSelection += $_.Root
+    $index++
+}
+
+$selectedDrive = $null
+while ($null -eq $selectedDrive) {
+    $userChoice = Read-Host "Choose a drive by number (1-$($driveSelection.Length))"
+    if ($userChoice -match '^\d+$' -and $userChoice -le $driveSelection.Length) {
+        $selectedDrive = $driveSelection[[int]$userChoice - 1]
+    } else {
+        Write-Host "Invalid selection. Please choose a number between 1 and $($driveSelection.Length)."
+    }
+}
+
+$filePath = Join-Path $selectedDrive "io_test.dat"
+
+try {
+    $blockSizeBytes = $blockSizeKB * 1KB
+    $totalSizeBytes = $totalSizeMB * 1MB
+    $blocksToWrite = $totalSizeBytes / $blockSizeBytes
+
+    $randomData = New-Object byte[] $blockSizeBytes
+    $rng = New-Object System.Random
+
+    for ($i = 0; $i -lt $blocksToWrite; $i++) {
+        $rng.NextBytes($randomData)
+        [System.IO.File]::AppendAllBytes($filePath, $randomData)
+        Write-Progress -PercentComplete (($i / $blocksToWrite) * 100) -Status "Writing" -Activity "$i of $blocksToWrite blocks written"
+    }
+    
+    Write-Log "I/O Test Completed for $filePath."
+    Write-Output "I/O Test Completed. Check $filePath for the written data."
+
+} catch {
+    $errorMessage = $_.Exception.Message
+    Write-Log "Error during I/O test: $errorMessage"
+    Write-Host -ForegroundColor Red "An error occurred: $errorMessage"
+}
