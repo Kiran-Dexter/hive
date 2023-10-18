@@ -1,0 +1,71 @@
+The following is a breakdown of the different instructions used in a Dockerfile, which is a script used to build a Docker container:
+
+FROM ubuntu:20.04
+
+This instruction sets the base image for the Docker container. The image being used in this case is the Ubuntu 20.04 LTS image.
+
+LABEL version="1.0" maintainer="john.doe@example.com" description="Sample Dockerfile with multiple instructions"
+
+This instruction adds metadata to the image. A key-value pair provides information about the image, such as version, maintainer, and description.
+
+ENV MY_VARIABLE=value
+
+This instruction sets an environment variable inside the container. Here, an environment variable named MY_VARIABLE is set to "value".
+
+RUN apt-get update && apt-get install -y curl && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+This instruction runs a command inside the container while it's being built. Here, it updates the package list, installs curl, and then cleans up to minimize the image size.
+
+CMD ["echo", "Hello, World!"]
+
+This instruction sets the default command that will run when the container starts up (unless overridden).
+
+COPY local-file.txt /path/in/container/local-file.txt
+
+This instruction copies a file or directory from the host (or build context) into the container.
+
+WORKDIR /path/in/container
+
+This instruction sets the working directory for any RUN, CMD, ENTRYPOINT, COPY, and ADD instructions that follow in the Dockerfile.
+
+EXPOSE 80
+
+This instruction informs Docker that the container will listen on the specified network port at runtime. It's mainly for documentation and doesn't actually publish the port.
+
+VOLUME ["/path/to/volume"]
+
+This instruction creates a mount point in the container, which can be linked to a directory on the host or another container.
+
+ARG MY_BUILD_ARG=default_value
+
+This instruction defines a variable that the user can pass at build-time to the builder using --build-arg.
+
+ONBUILD RUN echo "This runs when another image is built FROM this one"
+
+This instruction adds a trigger that will be executed later when an image is used as the base for another image.
+
+SHELL ["/bin/bash", "-c"]
+
+This instruction changes the default shell used for the RUN, CMD, and ENTRYPOINT commands.
+
+Commands that were commented out in the Dockerfile:
+
+ENTRYPOINT ["echo"]
+
+This instruction is similar to CMD but allows you to set the container's main command, making it behave like an executable. Any additional arguments will be passed directly to this command.
+
+ADD https://example.com/big-file.tar.gz /path/in/container/
+
+This instruction copies files from a source to the container's own filesystem. This can also handle URLs and tarball unpacking.
+
+USER someuser
+
+This instruction sets the user name (or UID) and optionally the user group (or GID) to use when running the image.
+
+STOPSIGNAL SIGKILL
+
+This instruction sets the system call signal that will be sent to the container to exit. This can be used to override the default SIGTERM.
+
+HEALTHCHECK --interval=5m --timeout=3s CMD curl -f http://localhost/ || exit 1
+
+This instruction lets you instruct Docker on how to test a container to check if it's still working.
