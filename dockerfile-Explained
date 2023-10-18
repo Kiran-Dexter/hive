@@ -1,0 +1,68 @@
+
+
+# Use ubuntu:20.04 as the base image
+FROM ubuntu:20.04
+
+# Metadata as described above
+
+LABEL version="1.0" \
+      maintainer="john.doe@example.com" \
+      description="Sample Dockerfile with multiple instructions"
+
+# Set an environment variable
+
+ENV MY_VARIABLE=value
+
+# Install curl and clean up in a single RUN to reduce image size
+
+RUN apt-get update && apt-get install -y curl && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Set a default command to run when starting a container
+
+CMD ["echo", "Hello, World!"]
+
+# If ENTRYPOINT is set, CMD values are treated as arguments for ENTRYPOINT
+# For this example, we'll keep ENTRYPOINT commented to not interfere with CMD
+# ENTRYPOINT ["echo"]
+
+# Copy local-file.txt from the build context to the container
+
+COPY local-file.txt /path/in/container/local-file.txt
+
+# Uncomment to demonstrate ADD with a remote file, but for this example, let's keep it commented
+# ADD https://example.com/big-file.tar.gz /path/in/container/
+
+# Set the working directory
+
+WORKDIR /path/in/container
+
+# Expose port 80
+
+EXPOSE 80
+
+# Define a volume mount point
+
+VOLUME ["/path/to/volume"]
+
+# Use bash for subsequent commands. Switch to another user if needed (create it first if it doesn't exist).
+# Here, we'll keep this commented to use root (default).
+
+# USER someuser
+
+# Build argument (can be passed during docker build using --build-arg)
+
+ARG MY_BUILD_ARG=default_value
+
+# Trigger for subsequent builds from this image
+
+ONBUILD RUN echo "This runs when another image is built FROM this one"
+
+# Stopsignal and Healthcheck are not included here because they might interfere with simple runs of the container for demonstration purposes.
+
+# But you can uncomment them and adjust as needed.
+
+# STOPSIGNAL SIGKILL
+# HEALTHCHECK --interval=5m --timeout=3s CMD curl -f http://localhost/ || exit 1
+
+# Use /bin/bash for RUN, CMD, and ENTRYPOINT
+SHELL ["/bin/bash", "-c"]
