@@ -1,0 +1,19 @@
+# Use the official httpd image as the base
+FROM httpd:2.4
+
+# Expose port 8080
+EXPOSE 8080
+
+# Enable mod_dav modules and configure WebDAV for the /webdav directory
+RUN echo "LoadModule dav_module modules/mod_dav.so" >> /usr/local/apache2/conf/httpd.conf && \
+    echo "LoadModule dav_fs_module modules/mod_dav_fs.so" >> /usr/local/apache2/conf/httpd.conf && \
+    echo "LoadModule dav_lock_module modules/mod_dav_lock.so" >> /usr/local/apache2/conf/httpd.conf && \
+    echo "<Location /webdav>" >> /usr/local/apache2/conf/httpd.conf && \
+    echo "  DAV On" >> /usr/local/apache2/conf/httpd.conf && \
+    echo "</Location>" >> /usr/local/apache2/conf/httpd.conf
+
+# Change the default listening port to 8080
+RUN sed -i 's/Listen 80/Listen 8080/' /usr/local/apache2/conf/httpd.conf
+
+# Ensure the webdav directory exists
+RUN mkdir -p /usr/local/apache2/htdocs/webdav
