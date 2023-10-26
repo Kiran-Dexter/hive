@@ -1,0 +1,36 @@
+LoadModule dav_module modules/mod_dav.so
+LoadModule dav_fs_module modules/mod_dav_fs.so
+
+DavLockDB /var/lock/DavLock
+
+<Location /webdav>
+    Dav On
+
+    AuthType Basic
+    AuthName "WebDAV"
+    AuthUserFile /etc/httpd/conf/webdav.password
+    Require valid-user
+
+    Options Indexes FollowSymLinks
+    AllowOverride None
+</Location>
+
+  ==============================================================
+
+  FROM registry.access.redhat.com/rhscl/httpd-24-rhel8
+
+# Install necessary tools
+USER root
+RUN yum install -y httpd-tools && yum clean all
+
+# Copy custom configuration
+COPY httpd-webdav.conf /etc/httpd/conf.d/
+
+# Set a password for WebDAV access (Change 'myuser' and 'mypassword' as per your requirements)
+RUN htpasswd -c -bB /etc/httpd/conf/webdav.password myuser mypassword
+
+# Expose HTTP port
+EXPOSE 80
+
+# Run HTTPD in the foreground
+CMD ["httpd", "-D", "FOREGROUND"]
