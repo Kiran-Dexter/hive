@@ -1,0 +1,71 @@
+#!/bin/bash
+
+# Variables
+TAR_URL="your_tar_file_url"
+TAR_FILE="/data/your_tar_file_name.tar.gz"
+RPM_DIR="/data"
+BACKUP_DIR="/backup/docker_config"
+DOCKER_CONFIG="/lib/systemd/system/docker.service"
+
+# Step 1: Download the tar file from the URL using curl
+curl -o $TAR_FILE $TAR_URL
+
+# Step 2: Copy the files to /data (Assuming tar file is already in /data as per the URL)
+# Step 3: Extract the tar file
+tar -xzvf $TAR_FILE -C $RPM_DIR
+
+# Step 4: Install the RPM packages
+yum localinstall -y $RPM_DIR/*.rpm --nogpgcheck
+
+# Step 5: Start Docker service
+systemctl start docker
+
+# Step 6: If failed, try one more time
+if ! systemctl is-active --quiet docker; then
+    systemctl start docker
+fi
+
+# Step 7: Check Docker root directory
+DOCKER_ROOT=$(docker info | grep -i "Docker Root Dir")
+
+# Step 8: If Docker root is /var/lib/xxxx then
+if echo $DOCKER_ROOT | grep -q "/var/lib/xxxx"; then
+    # Step 9: Stop Docker service and socket
+    systemctl stop docker && systemctl stop docker.socket
+
+    # Step 10: Change the root directory in the config
+    # Step 11: Backup the config file before editing
+    mkdir -p $BACKUP_DIR
+    cp $DOCKER_CONFIG $BACKUP_DIR/docker.service.bak
+
+    # Step 12: Comment out the "ExecStart" line
+    sed -i 's|^ExecStart=.*|#&|' $DOCKER_CONFIG
+
+    # Step 13: Add the new "ExecStart" line
+    echo "ExecStart=/usr/bin/dockerd --data-root /data/ -H fd:// --containerd=/run/containerd/containerd.sock" | sudo tee -a $DOCKER_CONFIG
+
+    # Step 14: Save the file and restart the service
+    systemctl daemon-reload
+    systemctl start docker
+
+    # If failed, try one more time
+    if ! systemctl is-active --quiet docker; then
+        systemctl start docker
+    fi
+
+    # If still failed, revert the settings
+    if ! systemctl is-active --quiet docker; then
+        cp $BACKUP_DIR/docker.service.bak $DOCKER_CONFIG
+        systemctl daemon-reload
+        systemctl start docker
+    fi
+fi
+
+# Step 16: If everything is okay, print the Docker version and Docker root directory
+if systemctl is-active --quiet docker; then
+    docker version
+    docker info | grep -i "Docker Root Dir"
+fi
+
+# Step 17: End
+echo "Script execution completed."
