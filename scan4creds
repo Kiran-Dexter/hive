@@ -1,0 +1,1 @@
+tar -tf yourfile.tar | while read file; do tar -O -xf yourfile.tar "$file" | grep -H -E "password|secret|auth|token" && echo "Found in $file"; done
