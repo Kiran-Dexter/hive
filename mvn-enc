@@ -1,0 +1,60 @@
+#!/bin/bash
+
+# Function to prompt for user input
+prompt_for_input() {
+    read -p "$1: " input
+    echo "$input"
+}
+
+# Function to prompt for password input silently
+prompt_for_password() {
+    read -s -p "$1: " input
+    echo "$input"
+    echo
+}
+
+# Prompt for the plain text password silently
+plain_password=$(prompt_for_password "Enter the plain text password")
+
+# Encrypt the password using Maven
+encrypted_password=$(mvn --encrypt-password "$plain_password" | tail -n 1)
+
+# Verify if the encryption was successful
+if [[ "$encrypted_password" != {* ]]; then
+    echo "Failed to encrypt the password. Please check your Maven installation."
+    exit 1
+fi
+
+# Prompt for the server ID
+server_id=$(prompt_for_input "Enter the server ID")
+
+# Prompt for the username
+username=$(prompt_for_input "Enter the username")
+
+# Prompt for the location of the settings.xml file
+settings_file=$(prompt_for_input "Enter the full path to the settings.xml file")
+
+# Create or update the settings.xml file with the encrypted password
+if [[ -f "$settings_file" ]]; then
+    echo "Updating existing $settings_file..."
+else
+    echo "Creating new $settings_file..."
+    cat <<EOL > "$settings_file"
+<settings>
+    <servers>
+        <server>
+            <id></id>
+            <username></username>
+            <password></password>
+        </server>
+    </servers>
+</settings>
+EOL
+fi
+
+# Use sed to update the server ID, username, and password in the settings.xml file
+sed -i'' -e "s|<id>.*</id>|<id>${server_id}</id>|" \
+        -e "s|<username>.*</username>|<username>${username}</username>|" \
+        -e "s|<password>.*</password>|<password>${encrypted_password}</password>|" "$settings_file"
+
+echo "Updated $settings_file with encrypted password."
