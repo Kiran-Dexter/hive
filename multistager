@@ -1,0 +1,34 @@
+# Stage 1: Build stage
+FROM registry.access.redhat.com/ubi8/openjdk-17 AS build
+
+# Install Maven
+RUN dnf install -y maven && dnf clean all
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the pom.xml and download dependencies
+COPY pom.xml .
+RUN mvn dependency:go-offline
+
+# Copy the source code and build the application
+COPY src ./src
+RUN mvn clean package -DskipTests
+
+# Stage 2: Runtime stage
+FROM registry.access.redhat.com/ubi8/ubi-minimal
+
+# Install OpenJDK 17 and Python 3
+RUN microdnf install -y java-17-openjdk python38 && microdnf clean all
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the built application jar file from the build stage
+COPY --from=build /app/target/your-spring-boot-app.jar /app/your-spring-boot-app.jar
+
+# Expose the port that your Spring Boot application will run on
+EXPOSE 8080
+
+# Set the entry point to run your Spring Boot application
+ENTRYPOINT ["java", "-jar", "your-spring-boot-app.jar"]
