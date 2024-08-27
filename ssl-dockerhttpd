@@ -1,0 +1,28 @@
+# Use the official httpd base image from Docker Hub
+FROM docker.io/httpd:2.4
+
+# Update the existing httpd-ssl.conf to inject SSL settings directly
+RUN sed -i '/^<\/VirtualHost>/i \
+    SSLEngine on\n\
+    SSLCertificateFile "/usr/local/apache2/conf/server.crt"\n\
+    SSLCertificateKeyFile "/usr/local/apache2/conf/server.key"\n\
+    SSLProtocol -all +TLSv1.2 +TLSv1.3\n\
+    SSLCipherSuite HIGH:!aNULL:!MD5:!3DES:!RC4:!DSS:!eNULL:!EXP:!LOW\n\
+    SSLHonorCipherOrder on\n\
+    SSLCompression off\n\
+    SSLSessionTickets off\n\
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"\n' \
+    /usr/local/apache2/conf/extra/httpd-ssl.conf
+
+# Insert SSL certificate and key directly as hardcoded strings (for example purposes, replace with actual content)
+RUN echo -e "-----BEGIN CERTIFICATE-----\nYOUR_CERTIFICATE_CONTENT_HERE\n-----END CERTIFICATE-----" > /usr/local/apache2/conf/server.crt && \
+    echo -e "-----BEGIN PRIVATE KEY-----\nYOUR_PRIVATE_KEY_CONTENT_HERE\n-----END PRIVATE KEY-----" > /usr/local/apache2/conf/server.key
+
+# Ensure the correct permissions on the certificate files
+RUN chmod 600 /usr/local/apache2/conf/server.crt /usr/local/apache2/conf/server.key
+
+# Expose port 443 for HTTPS
+EXPOSE 443
+
+# Start Apache in the foreground
+CMD ["httpd-foreground"]
